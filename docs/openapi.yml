@@ -4,9 +4,9 @@ info:
   description: 株式会社Leafeaが提供するパートナーAPIについての仕様書です。
   version: 1.0.0
 servers:
-  - url: https://jinjer-api.fukuri-app.jp/api/v1/partners
+  - url: https://partner.fukuri-app.jp/api/v1/partners
     description: 本番環境
-  - url: https://stg-jinjer-api.fukuri-app.jp/api/v1/partners
+  - url: https://partner.fukuri-app.jp/api/v1/partners
     description: 検証環境
 
 paths:
