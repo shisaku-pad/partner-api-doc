@@ -1,18 +1,51 @@
 openapi: 3.0.0
 info:
-  title: パートナーAPI
-  description: 株式会社Leafeaが提供するパートナーAPIについての仕様書です。
+  title: 福利アプリパートナーAPI
+  description: |-
+    株式会社Leafeaが提供するパートナーAPIについての仕様書です。
+    ## はじめに
+    このドキュメントは株式会社Leafeaが提供するparter APIの利用方法を説明するものです。
+
+    ## Partner APIとは
+    福利アプリおよび企業・ユーザーの登録および退会処理などを実行することが可能なAPIです。
+
+    ## 事前準備
+    開発を進めていただく前に事前に弊社（担当者）へお問い合わせいただき、認証トークンの取得が必須となります。
+
+    ## 認証方法
+    全てのリクエストにおいて認証トークンを発行し、それを BearerToken認証に指定する必要があります。
+    <br>
+    Ruby でのコードイメージは以下の通りです。
+    ```
+    headers["Authorization"] = "Bearer #{access_token}"
+    ```
+
+    ##  リクエストの基本設定
+    ### プロトコル
+    HTTPS
+
+    ### エンドポイント
+    ```
+    https://parter.fukuri-app.jp
+    ```
+    ・本番環境のエンドポイントとなります。<br>
+    ・検証用の環境をご利用される場合は検証用のエンドポイントを担当者よりお送りいたします。
+
+    ### Content-type
+    ```
+    application/json; charset=utf-8
+    ```
   version: 1.0.0
-servers:
-  - url: https://partner.fukuri-app.jp/api/v1/partners
-    description: 本番環境
-  - url: https://partner.fukuri-app.jp/api/v1/partners
-    description: 検証環境
+# servers:
+#   - url: https://partner.fukuri-app.jp/api/v1/partners
+#     description: 本番環境（仮置き）
+#   - url: https://stg-partner.fukuri-app.jp/api/v1/partners
+#     description: 検証環境（仮置き）
 
 paths:
   /clients:
     post:
-      summary: 企業作成
+      summary: 利用企業を作成することが可能
       operationId: createClient
       tags:
         - 企業管理API
@@ -21,24 +54,78 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Client'
+              $ref: '#/components/schemas/ClientRequest'              
       responses:
         '200':
           description: 企業登録が成功しました。
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultObject'
+                type: object
+                properties:
+                  result-status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: 企業登録が成功しました。
+                  result-object:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: 処理成功時の企業ID
+                        example: 633ffc2059f6d7a28e147616
         '400':
           description: すでに同じ企業IDが登録されています。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultObject'
+                        
         '401':
           description: Unauthorized
+        '405':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result-status:
+                    type: integer
+                    example: 405
+                  message:
+                    type: string
+                    example: 送信した項目の検証に失敗しました。
+                  result-object:
+                    type: object
+                    properties:
+                      errors:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            msg:
+                              type: string
+                              example: Invalid value
+                            param:
+                              type: string
+                              example: name
+                            location:
+                              type: string
+                              example: body
+                      
+
         '500':
           description: サーバーでエラーが発生しました。
 
   /clients/{external_client_id}:
     delete:
-      summary: 企業削除
+      summary: 利用企業を企業削除することが可能
+      description: |- 
+        ## 注意事項
+        企業を削除すると企業に紐づく従業員の利用ができない状態になります。
       operationId: deleteClient
       tags:
         - 企業管理API
@@ -55,7 +142,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultObject'
+                type: object
+                properties:
+                  result-status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: 企業削除処理が成功しました。
+                  result-object:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: 処理成功時の企業ID
+                        example: 633ffc2059f6d7a28e147616
         '400':
           description: 企業コードを送信してください。
         '401':
@@ -67,7 +168,10 @@ paths:
 
   /users:
     post:
-      summary: 従業員追加
+      summary: 従業員追加及び利用招待メールの送信が可能
+      description: |-
+        ## 企業
+        従業員が追加された後、利用招待のメールが送信されます。
       operationId: addUser
       tags:
         - 従業員管理API
@@ -76,14 +180,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserRequest'
       responses:
         '200':
           description: 従業員登録が成功しました。
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultObject'
+                type: object
+                properties:
+                  result-status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: 成功または失敗の詳細メッセージ
+                  result-object:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                        description: 処理成功時のユーザーID
+                        example: "633ffc2059f6d7a28e11i373"
+                      clientId:
+                        type: string
+                        description: 処理成功時の企業ID
+                        example: "633ffc2059f6d7a28e147616"                                     
         '400':
           description: すでにメールアドレスが登録されています。
         '401':
@@ -92,10 +214,18 @@ paths:
           description: 該当する企業が見つかりません。
         '500':
           description: サーバーでエラーが発生しました。
+        '500 ':
+          description: 利用者の登録は完了しましたが、メール送信が完了しませんでした。システム管理者にお問い合わせください。
 
   /users/{external_employee_id}:
     put:
-      summary: 従業員更新
+      summary: 従業員の情報を更新することが可能
+      description: |-
+        ## 概要
+        更新の対象の要素は以下の3つです。
+        1. full_name: 従業員名<br>
+        2. business_email: メールアドレス<br>
+        3. enable: 利用ステータス
       operationId: updateUser
       tags:
         - 従業員管理API
@@ -111,14 +241,41 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  description: 従業員名
+                  example: 福利太郎
+                business_email:
+                  type: string
+                  description: 従業員のメールアドレス
+                  example: example@fukuri-app.jp
+                enable:
+                  type: boolean
+                  description: 利用ステータス
+                  example: true
       responses:
         '200':
           description: 更新が成功しました。
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultObject'
+                type: object
+                properties:
+                  result-status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: 企業更新処理が成功しました。
+                  result-object:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: 処理成功時の企業ID
+                        example: 633ffc2059f6d7a28e147616
         '401':
           description: Unauthorized
         '404':
@@ -127,7 +284,7 @@ paths:
           description: サーバーでエラーが発生しました。
 
     delete:
-      summary: 従業員削除
+      summary: 従業員を削除することが可能
       operationId: deleteUser
       tags:
         - 従業員管理API
@@ -144,7 +301,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultObject'
+                type: object
+                properties:
+                  result-status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: 従業員の退会処理が成功しました。
+                  result-object:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: 処理成功時の企業ID
+                        example: 633ffc2059f6d7a28e147616
         '401':
           description: Unauthorized
         '404':
@@ -154,31 +325,37 @@ paths:
 
 components:
   schemas:
-    Client:
+    ClientRequest:
       type: object
       properties:
         name:
           type: string
           description: 会社名
+          example: 株式会社Leafea
         plan:
           type: integer
           description: プラン番号
+          example: 1
         external_client_id:
           type: string
           description: 連携先企業のID
+          example: CLI001
 
-    User:
+    UserRequest:
       type: object
       properties:
         external_client_id:
           type: string
-          description: 連携先企業のID
+          description: 連携先企業の従業員ID
+          example: EMP001
         full_name:
           type: string
           description: 従業員名
+          example: 福利太郎
         business_email:
           type: string
           description: 従業員のメールアドレス
+          example: example@fukuri-app.jp
 
     ResultObject:
       type: object
