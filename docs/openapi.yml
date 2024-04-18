@@ -43,7 +43,7 @@ info:
 #     description: 検証環境（仮置き）
 
 paths:
-  /clients:
+  /api/partner/clients:
     post:
       summary: 利用企業を作成することが可能
       operationId: createClient
@@ -120,7 +120,7 @@ paths:
         '500':
           description: サーバーでエラーが発生しました。
 
-  /clients/{external_client_id}:
+  /api/partner/clients/{external_client_id}:
     delete:
       summary: 利用企業を企業削除することが可能
       description: |- 
@@ -166,7 +166,7 @@ paths:
         '500':
           description: サーバーでエラーが発生しました。
 
-  /users:
+  /api/partner/users:
     post:
       summary: 従業員追加及び利用招待メールの送信が可能
       description: |-
@@ -217,7 +217,7 @@ paths:
         '500 ':
           description: 利用者の登録は完了しましたが、メール送信が完了しませんでした。システム管理者にお問い合わせください。
 
-  /users/{external_employee_id}:
+  /api/partner/users/{external_employee_id}:
     put:
       summary: 従業員の情報を更新することが可能
       description: |-
