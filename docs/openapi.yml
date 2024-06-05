@@ -346,8 +346,12 @@ components:
       properties:
         external_client_id:
           type: string
-          description: 連携先企業の従業員ID
+          description: 連携先企業のID
           example: EMP001
+        external_employee_id:
+          type: string
+          description: 連携先企業の従業員ID
+          example: EMP001_001
         full_name:
           type: string
           description: 従業員名
