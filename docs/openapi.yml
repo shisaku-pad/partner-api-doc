@@ -49,6 +49,25 @@ paths:
       operationId: createClient
       tags:
         - 企業管理API
+      paramaters:
+        - in: body
+          name: external_client_id
+          required: true
+          schema:
+            type: string
+          description: 連携先企業ID
+        - in: body
+          name: name
+          required: true
+          schema:
+            type: string
+          description: 連携先企業名
+        - in: body
+          name: plan
+          required: true
+          schema:
+            type: integer
+          description: プラン番号
       requestBody:
         required: true
         content:
@@ -175,6 +194,31 @@ paths:
       operationId: addUser
       tags:
         - 従業員管理API
+      paramaters:
+        - in: body
+          name: external_employee_id
+          required: true
+          schema:
+            type: string
+          description: 連携先企業の従業員ID
+        - in: body
+          name: external_client_id
+          required: true
+          schema:
+            type: string
+          description: 連携先企業ID
+        - in: body
+          name: full_name
+          required: true
+          schema:
+            type: string
+          description: 従業員名
+        - in: body
+          name: business_email
+          required: false
+          schema:
+            type: string
+          description: 従業員のメールアドレス
       requestBody:
         required: true
         content:
@@ -236,6 +280,12 @@ paths:
           schema:
             type: string
           description: 連携先企業の従業員ID
+        - in: body
+          name: business_email
+          required: false
+          schema:
+            type: string
+          description: 従業員のメールアドレス
       requestBody:
         required: false
         content:
