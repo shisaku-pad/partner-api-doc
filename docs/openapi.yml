@@ -54,18 +54,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClientRequest'        
-              properties:
-                external_client_id:
-                  type: string
-                name:
-                  type: string
-                plan:
-                  type: integer
-              required:
-                - external_client_id
-                - name
-                - plan      
+              $ref: '#/components/schemas/ClientRequest'              
       responses:
         '200':
           description: 企業登録が成功しました。
@@ -133,7 +122,7 @@ paths:
 
   /api/v1/partners/clients/{external_client_id}:
     delete:
-      summary: 利用企業を削除することが可能
+      summary: 利用企業を企業削除することが可能
       description: |- 
         ## 注意事項
         企業を削除すると企業に紐づく従業員の利用ができない状態になります。
@@ -192,19 +181,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserRequest'
-              properties:
-                external_client_id:
-                  type: string
-                external_employee_id:
-                  type: string
-                full_name:
-                  type: string
-                business_email:
-                  type: string
-              required:
-                - external_client_id
-                - external_employee_id
-                - full_name
       responses:
         '200':
           description: 従業員登録が成功しました。
